@@ -1,18 +1,7 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Jan  8 16:45:29 2024
-
-@author: JDION
-"""
-
-"""
-Création de la classe GradientDescent utilisée durant l'intégralité de ce cours
-"""
-import numpy as np
 class GradientDescent:
-    
-    def __init__(self, gradient, learning_rate, max_iterations):
-        
+    def __init__(
+        self, gradient, learning_rate: float = 0.01, max_iterations: int = 1000
+    ):
         """
         Initialise l'objet GradientDescent avec les paramètres nécessaires.
 
@@ -21,13 +10,11 @@ class GradientDescent:
         - learning_rate : Taux d'apprentissage (pas) pour la mise à jour des paramètres.
         - max_iterations : Nombre maximal d'itérations de l'algorithme de descente.
         """
-        
-        self.gradient = gradient
+        self.gradient = gradient  # tuple de vecteurs (df/dx, df/dy, ...)
         self.learning_rate = learning_rate
         self.max_iterations = max_iterations
 
-    def descent(self, initial_point,taux_erreur):
-        
+    def descent(self, initial_point) -> int:
         """
         Effectue l'algorithme de descente de gradient.
 
@@ -37,18 +24,20 @@ class GradientDescent:
         Retourne :
         - Le point optimal trouvé par l'algorithme.
         """
-        nb_iter=0
+        step = self.learning_rate
+        current_point = initial_point
         for i in range(self.max_iterations):
-            if np.linalg.norm(initial_point)<=taux_erreur:
-                return (initial_point,nb_iter)
-            else:
-                initial_point=self.update(initial_point,self.gradient(initial_point[0],initial_point[1]))
-                nb_iter+=1
+            current_gradient = self.gradient(current_point)
+            current_point = self.update(current_point, current_gradient)
 
-        return (initial_point,nb_iter)
+            # step = step / (i + 2)  # linearly decreasing
+            # step = step / (i + 2) ** 2  # quadratically decreasing
+            # step = step * np.exp(-self.beta * (i + 1))  # exponentially decreasing
+            # step = step / (self.alpha * (i + 1) + 1)  # keras linearly decreasing
+
+        return current_point
 
     def update(self, point, gradient_value):
-        
         """
         Met à jour le point en utilisant le gradient et le taux d'apprentissage.
 
@@ -59,6 +48,4 @@ class GradientDescent:
         Retourne :
         - Le nouveau point après la mise à jour.
         """
-        new_point=point-self.learning_rate*gradient_value
-        
-        return new_point
+        return point - self.learning_rate * gradient_value

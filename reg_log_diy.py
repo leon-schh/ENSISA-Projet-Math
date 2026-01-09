@@ -56,16 +56,15 @@ def gradient_function(theta, X, y):
 
 
 # Fonction fit pour entraîner une régression logistique binaire
-def fit(X, y, learning_rate=0.01, max_iterations=1000, taux_erreur=1e-6):
+def fit(X, y, learning_rate=0.01, max_iterations=1000):
     """
-    Entraîne un modèle de régression logistique binaire
+    Entraîne un modèle de régression logistique binaire en utilisant la classe GradientDescent
     
     Paramètres :
     - X : matrice des features
     - y : vecteur des labels (0 ou 1)
     - learning_rate : taux d'apprentissage
     - max_iterations : nombre maximal d'itérations
-    - taux_erreur : seuil de convergence
     
     Retourne :
     - theta : vecteur des paramètres optimaux
@@ -75,27 +74,19 @@ def fit(X, y, learning_rate=0.01, max_iterations=1000, taux_erreur=1e-6):
     X_bias = np.c_[np.ones(m), X]
     
     # Initialiser theta
-    theta = np.zeros(n + 1)
+    theta_initial = np.zeros(n + 1)
     
     # Créer une fonction gradient adaptée pour GradientDescent
-    def gradient_adapted(theta_0, theta_rest):
-        """Adapte le gradient pour la classe GradientDescent"""
-        theta_full = np.concatenate([[theta_0], theta_rest])
-        grad = gradient_function(theta_full, X_bias, y)
-        return grad
+    # Le gradient prend theta et retourne le gradient de la fonction de coût
+    def gradf(theta):
+        """Calcule le gradient de la fonction de coût logistique"""
+        return gradient_function(theta, X_bias, y)
     
-    # Utiliser la descente de gradient classique
-    for i in range(max_iterations):
-        grad = gradient_function(theta, X_bias, y)
-        theta_new = theta - learning_rate * grad
-        
-        # Vérifier la convergence
-        if np.linalg.norm(grad) <= taux_erreur:
-            break
-        
-        theta = theta_new
+    # Créer l'objet GradientDescent et effectuer la descente
+    gd = GradientDescent(gradient=gradf, learning_rate=learning_rate, max_iterations=max_iterations)
+    theta_optimal = gd.descent(initial_point=theta_initial)
     
-    return theta
+    return theta_optimal
 
 
 # Fonction pour prédire avec un modèle binaire
@@ -116,7 +107,7 @@ def predict_binary(theta, X):
 
 
 # Fonction pour entraîner un classifieur multiclasse One-vs-Rest
-def fit_multiclass(X, y, learning_rate=0.01, max_iterations=1000, taux_erreur=1e-6):
+def fit_multiclass(X, y, learning_rate=0.01, max_iterations=1000):
     """
     Entraîne un classifieur multiclasse avec la méthode One-vs-Rest
     
@@ -125,7 +116,6 @@ def fit_multiclass(X, y, learning_rate=0.01, max_iterations=1000, taux_erreur=1e
     - y : vecteur des labels (classes multiples)
     - learning_rate : taux d'apprentissage
     - max_iterations : nombre maximal d'itérations
-    - taux_erreur : seuil de convergence
     
     Retourne :
     - Liste des theta pour chaque classe
@@ -143,7 +133,7 @@ def fit_multiclass(X, y, learning_rate=0.01, max_iterations=1000, taux_erreur=1e
         y_binary = (y == classe).astype(int)
         
         # Entraîner le modèle binaire
-        theta = fit(X, y_binary, learning_rate, max_iterations, taux_erreur)
+        theta = fit(X, y_binary, learning_rate, max_iterations)
         thetas.append(theta)
     
     print("Entraînement terminé!")
