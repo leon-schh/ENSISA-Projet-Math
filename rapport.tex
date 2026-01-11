@@ -1,0 +1,240 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{hyperref}
+
+\title{Rapport d'Analyse des Modèles de Classification sur le Dataset Digits et MNIST}
+\author{ENSISA Projet Math}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section{Théorie Mathématique}
+
+\subsection{Régression Logistique}
+
+La régression logistique est un modèle de classification binaire qui étend la régression linéaire à des problèmes de classification. Elle utilise la fonction sigmoïde pour mapper les sorties linéaires à des probabilités entre 0 et 1.
+
+\textbf{Modèle :}
+\[ P(y=1|x) = \sigma(\theta^T x) = \frac{1}{1 + e^{-\theta^T x}} \]
+où \(\theta\) est le vecteur des paramètres (poids), \(x\) le vecteur des features (avec biais), et \(\sigma\) la fonction sigmoïde.
+
+\textbf{Fonction de coût (log-vraisemblance négative) :}
+\[ J(\theta) = -\frac{1}{m} \sum_{i=1}^m [y^{(i)} \log h_\theta(x^{(i)}) + (1 - y^{(i)}) \log (1 - h_\theta(x^{(i)}))] \]
+avec \(h_\theta(x) = \sigma(\theta^T x)\), et \(m\) le nombre d'échantillons.
+
+\textbf{Gradient :}
+\[ \frac{\partial J}{\partial \theta_j} = \frac{1}{m} \sum_{i=1}^m (h_\theta(x^{(i)}) - y^{(i)}) x_j^{(i)} \]
+
+Pour la classification multiclasse, on utilise One-vs-Rest (OvR) : un classifieur binaire par classe, où la classe positive est la classe cible et les autres sont négatives.
+
+\subsection{Descente de Gradient}
+
+La descente de gradient est un algorithme d'optimisation itératif pour minimiser la fonction de coût \(J(\theta)\).
+
+\textbf{Mise à jour :}
+\[ \theta := \theta - \alpha \nabla J(\theta) \]
+où \(\alpha\) est le taux d'apprentissage, et \(\nabla J\) le gradient.
+
+Dans ce projet, une variante avec décroissance linéaire du taux est implémentée, mais non utilisée.
+
+\subsection{Métriques d'Évaluation}
+
+\begin{itemize}
+\item \textbf{Précision (Precision) :} \( \frac{TP}{TP + FP} \), proportion de vrais positifs parmi les prédictions positives.
+\item \textbf{Rappel (Recall) :} \( \frac{TP}{TP + FN} \), proportion de vrais positifs parmi les vrais positifs réels.
+\item \textbf{F1-score :} Moyenne harmonique de précision et rappel : \( 2 \cdot \frac{precision \cdot recall}{precision + recall} \).
+\item \textbf{Matrice de confusion :} Tableau montrant TP, FP, FN, TN pour chaque classe.
+\item \textbf{Accuracy :} \( \frac{TP + TN}{Total} \), proportion de prédictions correctes.
+\end{itemize}
+
+Pour multiclasse, ces métriques sont calculées par classe puis moyennées (macro/micro).
+
+\subsection{Réseaux de Neurones}
+
+Un réseau de neurones feedforward apprend des représentations hiérarchiques des données via des couches de neurones interconnectés.
+
+\textbf{Propagation avant :}
+Pour une couche \(l\), \( a^{(l)} = \sigma(W^{(l)} a^{(l-1)} + b^{(l)}) \), où \(W\) sont les poids, \(b\) les biais, \(\sigma\) l'activation.
+
+Dans ce projet : Flatten (28x28 → 784) → Dense(16, relu) → Dense(10, softmax).
+
+\textbf{Fonction de perte :} Entropie croisée pour classification : \( L = -\sum y \log \hat{y} \).
+
+\textbf{Rétropropagation :} Calcul des gradients via la chaîne pour mettre à jour les poids avec descente de gradient.
+
+\section{Introduction}
+
+Ce rapport analyse les performances de trois modèles de classification appliqués à la reconnaissance de chiffres manuscrits : une régression logistique implémentée from scratch, une régression logistique utilisant scikit-learn sur le dataset digits, et un réseau de neurones sur le dataset MNIST. L'objectif est d'évaluer l'efficacité de chaque approche, d'analyser l'influence des paramètres, d'interpréter les coefficients appris, d'expliquer les erreurs observées, et de prendre du recul sur le travail effectué.
+
+\section{Analyse des Résultats Obtenus}
+
+\subsection{Régression Logistique From Scratch (Dataset Digits)}
+
+La régression logistique implémentée from scratch atteint une précision globale de 94\% sur l'ensemble de test (899 échantillons). Le rapport de classification révèle des performances variables par classe :
+
+\begin{itemize}
+\item Classe 0 : Précision 96\%, Rappel 100\%, F1-score 98\%
+\item Classe 1 : Précision 91\%, Rappel 88\%, F1-score 89\%
+\item Classe 2 : Précision 94\%, Rappel 100\%, F1-score 97\%
+\item Classe 3 : Précision 99\%, Rappel 86\%, F1-score 92\%
+\item Classe 4 : Précision 99\%, Rappel 99\%, F1-score 99\%
+\item Classe 5 : Précision 97\%, Rappel 93\%, F1-score 95\%
+\item Classe 6 : Précision 99\%, Rappel 98\%, F1-score 98\%
+\item Classe 7 : Précision 90\%, Rappel 98\%, F1-score 94\%
+\item Classe 8 : Précision 87\%, Rappel 93\%, F1-score 90\%
+\item Classe 9 : Précision 90\%, Rappel 89\%, F1-score 90\%
+\end{itemize}
+
+La matrice de confusion montre que les erreurs sont principalement concentrées sur les classes 1, 3, 5, 8 et 9, avec des confusions fréquentes entre chiffres similaires (par exemple, 1 confondu avec 8 ou 9, 3 avec 5 ou 8).
+
+\subsection{Régression Logistique avec Scikit-Learn (Dataset Digits)}
+
+Sur le dataset digits (1797 échantillons, 64 features), le modèle atteint 99.93\% de précision sur l'entraînement et 97.22\% sur le test (360 échantillons). Le rapport de classification détaillé indique :
+
+\begin{itemize}
+\item Classe 0 : Précision 100\%, Rappel 100\%, F1-score 100\%
+\item Classe 1 : Précision 88.9\%, Rappel 88.9\%, F1-score 88.9\%
+\item Classe 2 : Précision 100\%, Rappel 100\%, F1-score 100\%
+\item Classe 3 : Précision 97.4\%, Rappel 100\%, F1-score 98.7\%
+\item Classe 4 : Précision 97.3\%, Rappel 100\%, F1-score 98.6\%
+\item Classe 5 : Précision 100\%, Rappel 100\%, F1-score 100\%
+\item Classe 6 : Précision 100\%, Rappel 97.2\%, F1-score 98.6\%
+\item Classe 7 : Précision 100\%, Rappel 100\%, F1-score 100\%
+\item Classe 8 : Précision 88.6\%, Rappel 88.6\%, F1-score 88.6\%
+\item Classe 9 : Précision 100\%, Rappel 97.2\%, F1-score 98.6\%
+\end{itemize}
+
+Il y a 10 erreurs sur 360 échantillons de test, principalement sur les classes 1 et 8.
+
+\subsection{Réseau de Neurones (Dataset MNIST)}
+
+Le réseau de neurones simple (Flatten + Dense(16, relu) + Dense(10, softmax)) atteint une précision de test d'environ 92-93\% sur MNIST. La matrice de confusion révèle :
+
+\begin{itemize}
+\item Classe 0 : 97.14\% (952/979 correctes)
+\item Classe 1 : 98.06\% (1113/1135)
+\item Classe 2 : 90.99\% (939/1032)
+\item Classe 3 : 93.17\% (941/1010)
+\item Classe 4 : 96.33\% (946/982)
+\item Classe 5 : 89.13\% (795/892)
+\item Classe 6 : 97.29\% (932/958)
+\item Classe 7 : 93.87\% (965/1028)
+\item Classe 8 : 92.20\% (898/974)
+\item Classe 9 : 90.98\% (918/1009)
+\end{itemize}
+
+Les erreurs sont plus fréquentes sur les classes 2, 3, 5, 8 et 9, avec des confusions entre chiffres visuellement similaires.
+
+\section{Influence des Paramètres}
+
+\subsection{Régression Logistique From Scratch}
+
+\begin{itemize}
+\item Taux d'apprentissage (learning\_rate=0.1) : Un taux élevé permet une convergence rapide mais risque de diverger si trop élevé. Ici, il contribue à une bonne convergence en 2000 itérations.
+\item Nombre d'itérations (max\_iterations=2000) : Suffisant pour atteindre la convergence, évitant le surapprentissage.
+\item Normalisation des données (/16.0) : Essentielle pour la stabilité numérique et la convergence du gradient.
+\item Méthode One-vs-Rest : Permet la classification multiclasse mais peut souffrir d'imbalancements si les classes ne sont pas équilibrées.
+\end{itemize}
+
+\subsection{Régression Logistique avec Scikit-Learn}
+
+\begin{itemize}
+\item max\_iter=1000 : Suffisant pour la convergence avec le solveur lbfgs.
+\item solver='lbfgs' : Optimiseur efficace pour les problèmes de petite taille comme digits.
+\item StandardScaler : Normalisation cruciale pour améliorer les performances et la stabilité.
+\item test\_size=0.2 : Répartition équilibrée permettant une évaluation fiable sans surapprentissage.
+\end{itemize}
+
+\subsection{Réseau de Neurones}
+
+\begin{itemize}
+\item Nombre d'époques (epochs=3) : Limité, ce qui peut expliquer des performances suboptimales ; plus d'époques amélioreraient probablement les résultats.
+\item Taille de la couche cachée (16 neurones) : Petite, limitant la capacité du modèle à capturer des patterns complexes.
+\item Optimiseur 'adam' : Adaptatif, contribuant à une convergence stable.
+\item Fonction d'activation 'relu' : Non-linéarité permettant d'apprendre des représentations complexes.
+\end{itemize}
+
+\section{Interprétation des Coefficients Appris}
+
+\subsection{Régression Logistique From Scratch}
+
+Les poids visualisés montrent comment chaque classifieur One-vs-Rest "voit" les pixels importants pour identifier un chiffre. Par exemple :
+\begin{itemize}
+\item Pour la classe 0, les poids positifs se concentrent sur les pixels centraux formant un cercle.
+\item Pour la classe 1, les poids mettent l'accent sur les pixels verticaux.
+\item Les poids négatifs indiquent les régions à éviter pour cette classe.
+\end{itemize}
+
+Cette interprétabilité est un avantage de la régression logistique par rapport aux réseaux de neurones.
+
+\subsection{Régression Logistique avec Scikit-Learn}
+
+Les coefficients peuvent être extraits via model.coef\_ et interprétés de manière similaire. Chaque coefficient représente l'importance d'un pixel pour la décision de classe. La régularisation implicite aide à éviter le surapprentissage.
+
+\subsection{Réseau de Neurones}
+
+Les poids sont distribués sur plusieurs couches, rendant l'interprétation plus difficile. La première couche apprend des features de bas niveau (bords, courbes), tandis que les couches suivantes combinent ces features. Contrairement à la régression logistique, il n'y a pas d'interprétation directe des pixels individuels.
+
+\section{Explications des Erreurs}
+
+\subsection{Régression Logistique From Scratch}
+
+Les erreurs surviennent principalement sur des chiffres mal écrits ou similaires :
+\begin{itemize}
+\item Classe 1 confondue avec 8 ou 9 : Pixels partagés dans les régions centrales.
+\item Classe 3 avec 5 ou 8 : Formes courbées similaires.
+\item Classe 8 avec d'autres : Complexité de la forme avec des trous.
+\end{itemize}
+
+La méthode One-vs-Rest peut amplifier ces confusions si un échantillon active plusieurs classifieurs.
+
+\subsection{Régression Logistique avec Scikit-Learn}
+
+Similaire aux erreurs from scratch, mais moins fréquentes grâce à l'optimisation avancée. Les 10 erreurs sont concentrées sur les classes difficiles (1 et 8), indiquant des limites inhérentes aux features linéaires.
+
+\subsection{Réseau de Neurones}
+
+Les erreurs plus nombreuses reflètent la complexité du dataset MNIST (28x28 vs 8x8). Les confusions entre 2/3, 3/5, 4/9, etc., montrent que le modèle simple n'a pas assez de capacité pour distinguer finement. Le manque d'époques et de neurones limite l'apprentissage de features discriminantes.
+
+\section{Réflexion sur le Travail Effectué}
+
+\subsection{Difficultés Rencontrées}
+
+\begin{itemize}
+\item Implémentation from scratch : Gestion des gradients, convergence, et extension à la classification multiclasse (One-vs-Rest) a nécessité une compréhension approfondie des mathématiques sous-jacentes.
+\item Choix des hyperparamètres : Essais-erreurs pour le taux d'apprentissage et le nombre d'itérations, sans validation croisée automatisée.
+\item Comparaison de datasets : Digits (simple, 8x8) vs MNIST (complexe, 28x28) rend les comparaisons difficiles.
+\item Temps de calcul : L'entraînement from scratch est lent comparé à scikit-learn.
+\end{itemize}
+
+\subsection{Limites du Travail}
+
+\begin{itemize}
+\item Modèle simple : La régression logistique est limitée aux séparations linéaires ; elle ne capture pas les non-linéarités complexes des chiffres manuscrits.
+\item Dataset limité : Digits a seulement ~1800 échantillons ; MNIST offre plus de données mais nécessite des modèles plus complexes.
+\item Évaluation : Pas de validation croisée systématique ; les résultats dépendent de la séparation train/test.
+\item Interprétabilité vs Performance : La régression logistique est interprétable mais moins performante que les réseaux de neurones sur des tâches complexes.
+\item Généralisation : Les modèles sont testés sur des datasets similaires ; la généralisation à d'autres écritures reste à vérifier.
+\end{itemize}
+
+\subsection{Perspectives d'Amélioration}
+
+\begin{itemize}
+\item Utiliser des techniques de preprocessing avancées (augmentation de données).
+\item Implémenter des modèles plus sophistiqués (SVM, Random Forest, CNN).
+\item Ajouter de la régularisation et de la validation croisée.
+\item Étendre à d'autres datasets ou tâches de classification.
+\end{itemize}
+
+\section{Conclusion}
+
+Ce projet démontre la progression de modèles simples (régression logistique from scratch) à des approches plus avancées (scikit-learn, réseaux de neurones). La régression logistique offre une bonne base avec une précision de ~94-97\% sur digits, tandis que les réseaux de neurones atteignent ~92\% sur MNIST malgré leur simplicité. Les erreurs soulignent l'importance des features non-linéaires pour des tâches visuelles complexes. Ce travail renforce la compréhension des algorithmes d'apprentissage automatique et de leurs compromis entre interprétabilité, performance et complexité.
+
+\end{document}
