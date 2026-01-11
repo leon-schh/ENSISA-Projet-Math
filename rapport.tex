@@ -9,7 +9,6 @@
 
 \title{Rapport d'Analyse des Modèles de Classification sur le Dataset Digits et MNIST}
 \author{ENSISA Projet Math}
-\date{\today}
 
 \begin{document}
 
@@ -330,34 +329,18 @@ Les erreurs plus nombreuses reflètent la complexité du dataset MNIST (28x28 vs
 
 \subsection{Difficultés Rencontrées}
 
-\begin{itemize}
-\item Implémentation from scratch : Gestion des gradients, convergence, et extension à la classification multiclasse (One-vs-Rest) a nécessité une compréhension approfondie des mathématiques sous-jacentes.
-\item Choix des hyperparamètres : Essais-erreurs pour le taux d'apprentissage et le nombre d'itérations, sans validation croisée automatisée.
-\item Comparaison de datasets : Digits (simple, 8x8) vs MNIST (complexe, 28x28) rend les comparaisons difficiles.
-\item Temps de calcul : L'entraînement from scratch est lent comparé à scikit-learn.
-\end{itemize}
+L'implémentation from scratch a nécessité une compréhension approfondie des mathématiques sous-jacentes, notamment pour la gestion des gradients et l'extension à la classification multiclasse via One-vs-Rest. Le choix des hyperparamètres s'est fait par essais-erreurs, faute de validation croisée automatisée. La comparaison entre Digits (8x8) et MNIST (28x28) reste délicate en raison de leurs différences de complexité. Enfin, l'entraînement from scratch s'avère nettement plus lent que les implémentations optimisées de scikit-learn.
 
 \subsection{Limites du Travail}
 
-\begin{itemize}
-\item Modèle simple : La régression logistique est limitée aux séparations linéaires ; elle ne capture pas les non-linéarités complexes des chiffres manuscrits.
-\item Dataset limité : Digits a seulement ~1800 échantillons ; MNIST offre plus de données mais nécessite des modèles plus complexes.
-\item Évaluation : Pas de validation croisée systématique ; les résultats dépendent de la séparation train/test.
-\item Interprétabilité vs Performance : La régression logistique est interprétable mais moins performante que les réseaux de neurones sur des tâches complexes.
-\item Généralisation : Les modèles sont testés sur des datasets similaires ; la généralisation à d'autres écritures reste à vérifier.
-\end{itemize}
+La régression logistique, limitée aux séparations linéaires, ne capture pas les non-linéarités complexes des chiffres manuscrits. Le dataset Digits, avec seulement ~1800 échantillons, reste modeste, tandis que MNIST nécessiterait des modèles plus sophistiqués. L'absence de validation croisée systématique rend les résultats dépendants de la séparation train/test choisie. On observe également un compromis entre interprétabilité et performance : la régression logistique reste explicable mais moins efficace que les réseaux de neurones sur des tâches visuelles complexes.
 
 \subsection{Perspectives d'Amélioration}
 
-\begin{itemize}
-\item Utiliser des techniques de preprocessing avancées (augmentation de données).
-\item Implémenter des modèles plus sophistiqués (SVM, Random Forest, CNN).
-\item Ajouter de la régularisation et de la validation croisée.
-\item Étendre à d'autres datasets ou tâches de classification.
-\end{itemize}
+Plusieurs pistes permettraient d'améliorer ce travail : l'utilisation de techniques de preprocessing avancées comme l'augmentation de données, l'implémentation de modèles plus sophistiqués (SVM, Random Forest, CNN), l'ajout systématique de validation croisée, et l'extension à d'autres datasets pour tester la généralisation des modèles.
 
 \section{Conclusion}
 
-Ce projet démontre la progression de modèles simples (régression logistique from scratch) à des approches plus avancées (scikit-learn, réseaux de neurones). La régression logistique offre une bonne base avec une précision de ~94-97\% sur digits, tandis que les réseaux de neurones atteignent ~92\% sur MNIST malgré leur simplicité. Les erreurs soulignent l'importance des features non-linéaires pour des tâches visuelles complexes. Ce travail renforce la compréhension des algorithmes d'apprentissage automatique et de leurs compromis entre interprétabilité, performance et complexité.
+Ce projet illustre la progression de modèles simples vers des approches plus avancées. La régression logistique from scratch atteint une précision de 94-97\% sur Digits, démontrant l'efficacité d'une implémentation manuelle bien maîtrisée. Les réseaux de neurones, malgré leur architecture simple, atteignent ~92\% sur MNIST. Les erreurs observées soulignent l'importance des représentations non-linéaires pour les tâches visuelles complexes. Ce travail renforce notre compréhension des algorithmes d'apprentissage automatique et des compromis entre interprétabilité, performance et complexité.
 
 \end{document}
