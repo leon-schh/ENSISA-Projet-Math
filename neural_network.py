@@ -5,6 +5,9 @@ from keras.models import Sequential
 from keras.layers import Dense, Flatten
 from sklearn.metrics import confusion_matrix
 
+# Exemple tiré du cours de fouille de données avec M. Forestier
+
+
 # Load MNIST
 (X_train, y_train), (X_test, y_test) = mnist.load_data()
 
