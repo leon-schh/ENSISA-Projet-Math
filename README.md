@@ -1,5 +1,7 @@
 # ENSISA - Projet Mathematiques
 
+Léon Scher - Dorian Poellen
+
 ## Installation
 
 ```bash
