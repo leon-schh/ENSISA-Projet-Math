@@ -207,8 +207,32 @@ print("\nRapport de classification:")
 print(metrics.classification_report(y_test, predicted))
 
 # Matrice de confusion
+cm = metrics.confusion_matrix(y_test, predicted)
 print("\nMatrice de confusion:")
-print(metrics.confusion_matrix(y_test, predicted))
+print(cm)
+
+# Affichage de la matrice de confusion avec matplotlib
+plt.figure(figsize=(10, 8))
+plt.imshow(cm, interpolation='nearest', cmap=plt.cm.Blues)
+plt.title('Matrice de Confusion')
+plt.colorbar()
+
+tick_marks = np.arange(len(classes))
+plt.xticks(tick_marks, classes)
+plt.yticks(tick_marks, classes)
+
+# Afficher les valeurs dans la matrice
+thresh = cm.max() / 2.
+for i in range(cm.shape[0]):
+    for j in range(cm.shape[1]):
+        plt.text(j, i, format(cm[i, j], 'd'),
+                 ha="center", va="center",
+                 color="white" if cm[i, j] > thresh else "black")
+
+plt.ylabel('Vraie classe')
+plt.xlabel('Classe prédite')
+plt.tight_layout()
+plt.show()
 
 # Visualisation des poids (thetas) appris pour chaque classifieur OvR
 # Chaque theta représente ce que le classifieur "cherche" pour identifier un chiffre
